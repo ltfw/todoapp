@@ -5,10 +5,10 @@ import Register from './components/Register.vue';  // Adjust path as necessary
 import Todos from './components/Todos.vue';  // Adjust path as necessary
 
 const routes = [
-    { path: '', component: Login },  // Set Login as the initial route
-    { path: '/login', component: Login },
-    { path: '/register', component: Register },
-    { path: '/todos', component: Todos, meta: { requiresAuth: true }, },
+    { path: '/', component: Login,name:'Login' },  // Set Login as the initial route
+    { path: '/login', component: Login,name:'Login' },
+    { path: '/register', component: Register,name:'Register' },
+    { path: '/todos', component: Todos, meta: { requiresAuth: true },name:'Todos'},
 ];
 
 const router = createRouter({
@@ -22,7 +22,7 @@ router.beforeEach((to, from, next) => {
 
     if (to.matched.some((record) => record.meta.requiresAuth) && !isAuthenticated) {
         // Redirect to login if trying to access a protected route
-        next({ path: '/login' });
+        next({ name: 'Login' });
     } else {
         // Proceed to the route if authenticated or route doesn't require auth
         next();
