@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-100">
     <!-- Header Section -->
-    <header class="bg-indigo-600 p-4">
+    <header class="bg-indigo-600 p-4 sticky top-0 z-50">
       <div class="container mx-auto flex justify-between items-center">
         <!-- App Title -->
         <h1 class="text-white text-3xl font-bold">To-Do App</h1>

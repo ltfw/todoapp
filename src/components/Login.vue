@@ -71,7 +71,7 @@ export default {
           setTimeout( async() => {
             await store.dispatch('login', { userId: data.id, userName: data.name });
             router.push('/todos'); // Adjust the path as necessary
-          }, 1500);
+          }, 1000);
         }
       } catch (err) {
         console.error('An unexpected error occurred:', err);

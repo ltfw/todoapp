@@ -9,16 +9,22 @@
           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required />
       </div>
       <!-- Name Input -->
-       <div class="mb-4">
+      <div class="mb-4">
         <label class="block text-gray-700">Full Name</label>
-         <input type="text" v-model="name" placeholder="Full Name"
-           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required />
-       </div>
+        <input type="text" v-model="name" placeholder="Full Name"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required />
+      </div>
       <!-- Password Input -->
       <div class="mb-4">
         <label class="block text-gray-700">Password</label>
         <input type="password" v-model="password" placeholder="Password"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required />
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required minlength="6" />
+      </div>
+      <!-- Confirm Password Input -->
+      <div class="mb-4">
+        <label class="block text-gray-700">Confirm Password</label>
+        <input type="password" v-model="confirmPassword" placeholder="Confirm Password"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required minlength="6" />
       </div>
       <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">
         Register
@@ -46,11 +52,26 @@ export default {
     const username = ref('');
     const name = ref('');
     const password = ref('');
+    const confirmPassword = ref('');
     const error = ref(null);
     const successMessage = ref(null);
     const router = useRouter();
 
     const registerUser = async () => {
+      // Check if passwords match
+      if (password.value !== confirmPassword.value) {
+        error.value = 'Passwords do not match.';
+        successMessage.value = null; // Clear any previous success message
+        return;
+      }
+
+      // Check minimum length
+      if (password.value.length < 6) {
+        error.value = 'Password must be at least 6 characters long.';
+        successMessage.value = null; // Clear any previous success message
+        return;
+      }
+
       try {
         const { data, error: registrationError } = await supabase
           .from('users')
@@ -69,7 +90,7 @@ export default {
           // Redirect to login after 3 seconds
           setTimeout(() => {
             router.push('/login');
-          }, 3000);
+          }, 1000);
         }
       } catch (err) {
         console.error('An unexpected error occurred:', err);
@@ -82,6 +103,7 @@ export default {
       username,
       name,
       password,
+      confirmPassword,
       error,
       successMessage,
       registerUser,
