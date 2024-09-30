@@ -2,11 +2,16 @@ import { createStore } from 'vuex';
 
 const store = createStore({
   state: {
-    userId: null,
+    userId: localStorage.getItem('userId') || null,
   },
   mutations: {
     setUserId(state, userId) {
       state.userId = userId;
+      localStorage.setItem('userId', userId);
+    },
+    clearUserId(state) {
+      state.userId = null;
+      localStorage.removeItem('userId'); // Clear userId from localStorage
     },
   },
   actions: {
@@ -14,7 +19,7 @@ const store = createStore({
       commit('setUserId', userId);
     },
     logout({ commit }) {
-      commit('setUserId', null);
+      commit('clearUserId');
     },
   },
 });

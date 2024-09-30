@@ -71,7 +71,7 @@ export default {
           // Redirect to Todos page after 3 seconds
           setTimeout(() => {
             router.push('/todos'); // Adjust the path as necessary
-          }, 3000);
+          }, 1500);
         }
       } catch (err) {
         console.error('An unexpected error occurred:', err);
