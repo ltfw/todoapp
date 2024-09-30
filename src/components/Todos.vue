@@ -1,38 +1,46 @@
 <template>
-  <div class="flex flex-col items-center">
-    <!-- Header Section: User Greeting and Logout -->
-    <div class="flex justify-between mb-6 w-full">
-      <!-- Greeting -->
-      <h2 class="text-xl font-semibold">
-        Hi, {{ userName }}
-      </h2>
-
-      <!-- Logout Button -->
-      <button @click="logout" class="bg-red-500 text-white font-semibold py-2 px-4 rounded hover:bg-red-600">
-        Logout
-      </button>
+  <div class="max-w-4xl mx-auto">
+    <!-- Add Todo Form -->
+    <div class="mb-6 p-4 bg-white shadow-md rounded-lg">
+      <h3 class="text-lg font-semibold mb-4">Add a New Todo</h3>
+      <form @submit.prevent="addTodo" class="flex space-x-4">
+        <input
+          v-model="newTodo"
+          type="text"
+          placeholder="Add a new task..."
+          class="flex-grow border rounded-lg p-2"
+        />
+        <button
+          type="submit"
+          class="bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-600"
+        >
+          Add
+        </button>
+      </form>
     </div>
-    <h2 class="text-2xl font-bold mb-4">Your Todos</h2>
 
-    <form @submit.prevent="addTodo" class="w-full max-w-md mb-4">
-      <input type="text" v-model="newTodo" placeholder="Add a new todo" class="border p-2 mb-2 w-full rounded"
-        required />
-      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">
-        Add Todo
-      </button>
-    </form>
-
-    <ul class="space-y-2 w-full">
-      <li v-for="todo in todos" :key="todo.id"
-        class="flex w-100 items-center justify-between p-2 border rounded-lg shadow-sm">
+    <!-- Todos List -->
+    <ul class="space-y-4">
+      <li
+        v-for="todo in todos"
+        :key="todo.id"
+        class="p-4 bg-white shadow-md rounded-lg flex justify-between items-center"
+      >
         <div class="flex items-center">
-          <input type="checkbox" v-model="todo.completed" @change="toggleCompleted(todo)"
-            class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-          <span :class="{ 'line-through text-gray-500': todo.completed, 'ml-2': true }" class="text-lg">
+          <input
+            type="checkbox"
+            v-model="todo.completed"
+            @change="toggleCompleted(todo)"
+            class="form-checkbox h-6 w-6 text-indigo-600"
+          />
+          <span :class="{'line-through text-gray-500': todo.completed}" class="ml-4 text-lg">
             {{ todo.task }}
           </span>
         </div>
-        <button @click="deleteTodo(todo.id)" class="text-red-500 hover:text-red-700">
+        <button
+          @click="deleteTodo(todo.id)"
+          class="text-red-500 hover:text-red-700"
+        >
           Delete
         </button>
       </li>

@@ -1,41 +1,31 @@
 <template>
-  <div class="flex flex-col items-center">
-    <h2 class="text-2xl font-bold mb-4">Login</h2>
+  <div class="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <h2 class="text-2xl font-bold text-center mb-6">Login</h2>
     <form @submit.prevent="loginUser" class="w-full max-w-sm">
       <!-- Username Input -->
-      <input
-        type="text"
-        v-model="username"
-        placeholder="Username"
-        class="border p-2 mb-4 w-full rounded"
-        required
-      />
-      <!-- Password Input -->
-      <input
-        type="password"
-        v-model="password"
-        placeholder="Password"
-        class="border p-2 mb-4 w-full rounded"
-        required
-      />
-      <button
-        type="submit"
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
-      >
+      <div class="mb-4">
+        <label class="block text-gray-700">Username</label>
+        <input v-model="username" type="text"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          placeholder="Enter your username" />
+      </div>
+      <div class="mb-6">
+        <label class="block text-gray-700">Password</label>
+        <input v-model="password" type="password"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          placeholder="Enter your password" />
+      </div>
+      <button type="submit"
+        class="w-full bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-600">
         Login
       </button>
     </form>
+    <!-- Link to Register -->
     <p v-if="error" class="text-red-500 mt-4">{{ error }}</p>
     <p v-if="successMessage" class="text-green-500 mt-4">{{ successMessage }}</p>
-    <!-- Link to Register -->
     <p class="mt-6 text-center text-gray-600">
       Don't have an account? 
-      <router-link 
-        to="/register" 
-        class="text-blue-500 hover:underline"
-      >
-        Register
-      </router-link>
+      <router-link to="/register" class="text-indigo-500 hover:underline">Register</router-link>
     </p>
   </div>
 </template>
@@ -50,7 +40,7 @@ export default {
   name: 'Login',
   setup() {
     const store = useStore();
-    console.log('store ',store);
+    console.log('store ', store);
 
     const username = ref('');
     const password = ref('');
@@ -76,10 +66,10 @@ export default {
           error.value = null; // Clear previous error message
           successMessage.value = 'Login successful! Redirecting to Todos...';
 
-          await store.dispatch('login', {userId:data.id, userName:data.name});
           
           // Redirect to Todos page after 3 seconds
-          setTimeout(() => {
+          setTimeout( async() => {
+            await store.dispatch('login', { userId: data.id, userName: data.name });
             router.push('/todos'); // Adjust the path as necessary
           }, 1500);
         }
