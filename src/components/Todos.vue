@@ -1,5 +1,17 @@
 <template>
   <div class="flex flex-col items-center">
+    <!-- Header Section: User Greeting and Logout -->
+    <div class="flex justify-between mb-6 w-full">
+      <!-- Greeting -->
+      <h2 class="text-xl font-semibold">
+        Hi, {{ userName }}
+      </h2>
+
+      <!-- Logout Button -->
+      <button @click="logout" class="bg-red-500 text-white font-semibold py-2 px-4 rounded hover:bg-red-600">
+        Logout
+      </button>
+    </div>
     <h2 class="text-2xl font-bold mb-4">Your Todos</h2>
 
     <form @submit.prevent="addTodo" class="w-full max-w-md mb-4">
@@ -32,17 +44,21 @@
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { supabase } from '../supabase.js'; // Adjust path as necessary
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'Todos',
   setup() {
+    const store = useStore();
+    const router = useRouter();
     const newTodo = ref('');
     const todos = ref([]);
 
-    const store = useStore();
+    const userName = store.state.userName || 'User';
+    const userId = store.state.userId;
 
     const fetchTodos = async () => {
-      const { data, error } = await supabase.from('todos').select('*');
+      const { data, error } = await supabase.from('todos').select('*').eq('user_id', userId);
       if (error) {
         console.error('Error fetching todos:', error);
       } else {
@@ -51,7 +67,6 @@ export default {
     };
 
     const addTodo = async () => {
-      const userId = store.state.userId;
       const { data, error } = await supabase
         .from('todos')
         .insert([{ task: newTodo.value, user_id: userId, completed: false }]); // Replace 'USER_ID_HERE' with actual user ID
@@ -93,14 +108,22 @@ export default {
       }
     };
 
+    // Logout function
+    const logout = () => {
+      store.dispatch('logout'); // Clear the user data from Vuex
+      router.push('/login'); // Redirect to login page
+    };
+
     onMounted(fetchTodos);
 
     return {
       newTodo,
+      userName,
       todos,
       addTodo,
       toggleCompleted,
       deleteTodo,
+      logout,
     };
   },
 };

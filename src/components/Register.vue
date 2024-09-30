@@ -35,6 +35,15 @@
     </form>
     <p v-if="error" class="text-red-500 mt-4">{{ error }}</p>
     <p v-if="successMessage" class="text-green-500 mt-4">{{ successMessage }}</p>
+    <p class="mt-6 text-center text-gray-600">
+      Already registered? 
+      <router-link 
+        to="/login" 
+        class="text-blue-500 hover:underline"
+      >
+        Login
+      </router-link>
+    </p>
   </div>
 </template>
 

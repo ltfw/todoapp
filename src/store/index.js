@@ -3,23 +3,28 @@ import { createStore } from 'vuex';
 const store = createStore({
   state: {
     userId: localStorage.getItem('userId') || null,
+    userName: localStorage.getItem('userName') || null,
   },
   mutations: {
-    setUserId(state, userId) {
+    setUser(state, { userId, userName }) {
       state.userId = userId;
+      state.userName = userName;
       localStorage.setItem('userId', userId);
+      localStorage.setItem('userName', userName);
     },
-    clearUserId(state) {
+    clearUser(state) {
       state.userId = null;
-      localStorage.removeItem('userId'); // Clear userId from localStorage
+      state.userName = null;
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userName');
     },
   },
   actions: {
-    login({ commit }, userId) {
-      commit('setUserId', userId);
+    login({ commit }, { userId, userName }) {
+      commit('setUser', { userId, userName });
     },
     logout({ commit }) {
-      commit('clearUserId');
+      commit('clearUser');
     },
   },
 });

@@ -27,6 +27,16 @@
     </form>
     <p v-if="error" class="text-red-500 mt-4">{{ error }}</p>
     <p v-if="successMessage" class="text-green-500 mt-4">{{ successMessage }}</p>
+    <!-- Link to Register -->
+    <p class="mt-6 text-center text-gray-600">
+      Don't have an account? 
+      <router-link 
+        to="/register" 
+        class="text-blue-500 hover:underline"
+      >
+        Register
+      </router-link>
+    </p>
   </div>
 </template>
 
@@ -66,7 +76,7 @@ export default {
           error.value = null; // Clear previous error message
           successMessage.value = 'Login successful! Redirecting to Todos...';
 
-          await store.dispatch('login', data.id);
+          await store.dispatch('login', {userId:data.id, userName:data.name});
           
           // Redirect to Todos page after 3 seconds
           setTimeout(() => {
