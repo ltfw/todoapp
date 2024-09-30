@@ -45,6 +45,7 @@
 import { ref } from 'vue';
 import { supabase } from '../supabase.js'; // Adjust path as necessary
 import { useRouter } from 'vue-router';
+import bcrypt from 'bcryptjs'; // Import bcrypt
 
 export default {
   name: 'Register',
@@ -73,9 +74,12 @@ export default {
       }
 
       try {
+        // Hash the password before storing it
+        const hashedPassword = await bcrypt.hash(password.value, 10);
+
         const { data, error: registrationError } = await supabase
           .from('users')
-          .insert([{ username: username.value, name: name.value, password: password.value }])
+          .insert([{ username: username.value, name: name.value, password: hashedPassword }])
           .select();
 
         if (registrationError) {
@@ -111,6 +115,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 /* You can add additional styles here if needed */

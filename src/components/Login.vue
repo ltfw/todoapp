@@ -35,13 +35,12 @@ import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { supabase } from '../supabase.js'; // Adjust path as necessary
+import bcrypt from 'bcryptjs'; // Import bcrypt
 
 export default {
   name: 'Login',
   setup() {
     const store = useStore();
-    console.log('store ', store);
-
     const username = ref('');
     const password = ref('');
     const error = ref(null);
@@ -50,11 +49,11 @@ export default {
 
     const loginUser = async () => {
       try {
+        // Fetch the user by username
         const { data, error: loginError } = await supabase
           .from('users')
           .select('*')
           .eq('username', username.value)
-          .eq('password', password.value)
           .single(); // Use single() to get a single record
 
         if (loginError || !data) {
@@ -62,13 +61,21 @@ export default {
           error.value = 'Invalid username or password.'; // Display the error message
           successMessage.value = null; // Clear any previous success message
         } else {
+          // Compare the password entered with the hashed password in the database
+          const passwordMatch = await bcrypt.compare(password.value, data.password);
+
+          if (!passwordMatch) {
+            error.value = 'Invalid username or password.';
+            successMessage.value = null;
+            return;
+          }
+
           console.log('Login successful:', data);
           error.value = null; // Clear previous error message
           successMessage.value = 'Login successful! Redirecting to Todos...';
 
-          
-          // Redirect to Todos page after 3 seconds
-          setTimeout( async() => {
+          // Redirect to Todos page after 1 second
+          setTimeout(async () => {
             await store.dispatch('login', { userId: data.id, userName: data.name });
             router.push('/todos'); // Adjust the path as necessary
           }, 1000);
@@ -90,6 +97,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 /* You can add additional styles here if needed */
