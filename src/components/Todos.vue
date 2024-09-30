@@ -1,11 +1,20 @@
 <template>
-  <div class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 ">
+  <div class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
     <!-- Add Todo Form -->
     <div class="mb-6 p-4 bg-white shadow-md rounded-lg">
       <h3 class="text-lg font-semibold mb-4">Add a New Todo</h3>
-      <form @submit.prevent="addTodo" class="flex space-x-4">
-        <input v-model="newTodo" type="text" placeholder="Add a new task..." class="flex-grow border rounded-lg p-2"
-          required />
+      <form @submit.prevent="addTodo" class="flex flex-col space-y-4">
+        <input v-model="newTodo" type="text" placeholder="Add a new task..." class="border rounded-lg p-2" required />
+
+        <input v-model="dueDate" type="datetime-local" class="border rounded-lg p-2" required />
+
+        <select v-model="priority" class="border rounded-lg p-2" required>
+          <option value="" disabled>Select priority</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+
         <button type="submit" class="bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-600">
           Add
         </button>
@@ -17,17 +26,21 @@
       <h3 class="text-lg font-semibold mb-4">Incomplete Tasks</h3>
       <ul class="space-y-4">
         <template v-if="incompleteTodos.length">
-          <li v-for="todo in incompleteTodos" :key="todo.id"
-            class="p-4 bg-white shadow-md rounded-lg flex justify-between items-center">
-            <div class="flex items-center">
-              <input type="checkbox" v-model="todo.completed" @change="toggleCompleted(todo)"
-                class="form-checkbox h-6 w-6 text-indigo-600" />
-              <span class="ml-4 text-lg">{{ todo.task }}</span>
+          <li v-for="todo in incompleteTodos" :key="todo.id">
+            <div :class="isOverdue(todo.due_date) ? 'bg-red-300' : 'bg-white'" class="p-4 shadow-md rounded-lg flex justify-between items-center">
+              <div class="flex items-center">
+                <input type="checkbox" v-model="todo.completed" @change="toggleCompleted(todo)"
+                  class="form-checkbox h-6 w-6 text-indigo-600" />
+                <span class="ml-4 text-lg">{{ todo.task }}</span>
+                <span class="ml-4 text-sm text-gray-500">Due: {{ formatDueDate(todo.due_date) }}</span>
+                <span class="ml-4 text-sm text-gray-500">Priority: {{ todo.priority }}</span>
+              </div>
+              <button @click="deleteTodo(todo.id)" class="text-red-500 hover:text-red-700">
+                Delete
+              </button>
             </div>
-            <button @click="deleteTodo(todo.id)" class="text-red-500 hover:text-red-700">
-              Delete
-            </button>
           </li>
+
         </template>
         <template v-else>
           <li class="p-4 bg-white shadow-md rounded-lg text-center text-gray-500">
@@ -41,17 +54,20 @@
     <div>
       <h3 class="text-lg font-semibold mb-4">Completed Tasks</h3>
       <ul class="space-y-4">
-        <template v-if="completedTodos.length"> 
-          <li v-for="todo in completedTodos" :key="todo.id"
-            class="p-4 bg-gray-100 shadow-md rounded-lg flex justify-between items-center">
-            <div class="flex items-center">
-              <input type="checkbox" v-model="todo.completed" @change="toggleCompleted(todo)"
-                class="form-checkbox h-6 w-6 text-green-600" />
-              <span class="ml-4 text-lg line-through text-gray-500">{{ todo.task }}</span>
+        <template v-if="completedTodos.length">
+          <li v-for="todo in completedTodos" :key="todo.id">
+            <div class="p-4 shadow-md rounded-lg flex justify-between items-center">
+              <div class="flex items-center">
+                <input type="checkbox" v-model="todo.completed" @change="toggleCompleted(todo)"
+                  class="form-checkbox h-6 w-6 text-green-600" />
+                <span class="ml-4 text-lg line-through text-gray-500">{{ todo.task }}</span>
+                <span class="ml-4 text-sm text-gray-500">Due: {{ formatDueDate(todo.due_date) }}</span>
+                <span class="ml-4 text-sm text-gray-500">Priority: {{ todo.priority }}</span>
+              </div>
+              <button @click="deleteTodo(todo.id)" class="text-red-500 hover:text-red-700">
+                Delete
+              </button>
             </div>
-            <button @click="deleteTodo(todo.id)" class="text-red-500 hover:text-red-700">
-              Delete
-            </button>
           </li>
         </template>
         <template v-else>
@@ -76,9 +92,10 @@ export default {
     const store = useStore();
     const router = useRouter();
     const newTodo = ref('');
+    const dueDate = ref('');
+    const priority = ref('');
     const todos = ref([]);
 
-    const userName = store.state.userName || 'User';
     const userId = store.state.userId;
 
     const fetchTodos = async () => {
@@ -93,29 +110,34 @@ export default {
     const addTodo = async () => {
       const { data, error } = await supabase
         .from('todos')
-        .insert([{ task: newTodo.value, user_id: userId, completed: false }]); // Replace 'USER_ID_HERE' with actual user ID
+        .insert([{
+          task: newTodo.value,
+          user_id: userId,
+          completed: false,
+          due_date: dueDate.value,
+          priority: priority.value
+        }]);
 
       if (error) {
         console.error('Error adding todo:', error);
       } else {
-        newTodo.value = ''; // Clear input field
-        fetchTodos(); // Refresh the todos list
+        newTodo.value = '';
+        dueDate.value = '';
+        priority.value = '';
+        fetchTodos();
       }
     };
 
     const toggleCompleted = async (todo) => {
-      console.log('Toggling:', todo); // Debugging line
-      console.log('todo.id:', todo.id); // Debugging line
-      console.log('!todo.completed:', todo.completed); // Debugging line
       const { data, error } = await supabase
         .from('todos')
-        .update({ completed: todo.completed }) // Toggle the completed status
+        .update({ completed: todo.completed })
         .eq('id', todo.id);
 
       if (error) {
         console.error('Error updating todo:', error);
       } else {
-        fetchTodos(); // Refresh the todos list
+        fetchTodos();
       }
     };
 
@@ -128,37 +150,59 @@ export default {
       if (error) {
         console.error('Error deleting todo:', error);
       } else {
-        fetchTodos(); // Refresh the todos list
+        fetchTodos();
       }
     };
 
-    // Logout function
-    const logout = () => {
-      store.dispatch('logout'); // Clear the user data from Vuex
-      router.push('/login'); // Redirect to login page
+    const formatDueDate = (dueDate) => {
+      return new Date(dueDate).toLocaleString(); // Format to include time
+    };
+
+    const isOverdue = (dueDate) => {
+      console.log('dueDate ',new Date(dueDate));
+      console.log('new Date() ',new Date());
+      console.log('new Date() ',new Date(dueDate) < new Date());
+      
+      return dueDate && new Date(dueDate) < new Date(); // Check if the due date is before the current date
     };
 
     onMounted(fetchTodos);
 
+    // Priority order mapping
+    const priorityOrder = {
+      high: 1,
+      medium: 2,
+      low: 3,
+    };
+
+    // Computed property for sorted todos
+    const sortedTodos = computed(() => {
+      return todos.value.slice().sort((a, b) => {
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      });
+    });
+
     // Computed properties for incomplete and completed todos
     const incompleteTodos = computed(() => {
-      return todos.value.filter(todo => !todo.completed);
+      return sortedTodos.value.filter(todo => !todo.completed);
     });
 
     const completedTodos = computed(() => {
-      return todos.value.filter(todo => todo.completed);
+      return sortedTodos.value.filter(todo => todo.completed);
     });
 
     return {
       newTodo,
-      userName,
+      dueDate,
+      priority,
       todos,
       addTodo,
       toggleCompleted,
       deleteTodo,
-      logout,
       incompleteTodos,
       completedTodos,
+      formatDueDate,
+      isOverdue,
     };
   },
 };
