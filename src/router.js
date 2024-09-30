@@ -5,7 +5,7 @@ import Register from './components/Register.vue';  // Adjust path as necessary
 import Todos from './components/Todos.vue';  // Adjust path as necessary
 
 const routes = [
-    { path: '/', component: Login,name:'Login' },  // Set Login as the initial route
+    { path: '', component: Login,name:'Login' },  // Set Login as the initial route
     { path: '/login', component: Login,name:'Login' },
     { path: '/register', component: Register,name:'Register' },
     { path: '/todos', component: Todos, meta: { requiresAuth: true },name:'Todos'},
